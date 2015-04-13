@@ -32,10 +32,71 @@ td{
   background-image: url('/assets/ronaldo.png');
 }
 
+.kingMe{
+  background-image: url('/assets/kingMe.png');
+}
+
+.kingRo{
+  background-image: url('/assets/kingRo.png');
+}
+
 .active{
   background-color: #222222;
 }
 
+.king{
+  border: 2px solid green;
+}
+
 .selected{
-  border: 1px solid red;
+  border: 2px solid red;
+
+  -moz-animation: flash 1s ease-out;
+  -moz-animation-iteration-count: 3;
+
+  -webkit-animation: flash 1s ease-out;
+  -webkit-animation-iteration-count: 3;
+
+  -ms-animation: flash 1s ease-out;
+  -ms-animation-iteration-count: 3;
+
+}
+
+@-webkit-keyframes flash {
+    0% { background-color:none;}
+    50% { background-color:lime;}
+    100% {background-color:none;}
+}
+
+@-moz-keyframes flash {
+    0% { background-color:none;}
+    50% { background-color:lime;}
+    100% {background-color:none;}
+}
+
+@-ms-keyframes flash {
+    0% { background-color:none;}
+    50% { background-color:lime;}
+    100% {background-color:none;}
+}
+
+button{
+  margin: 2%;
+  background-color: sky-blue;
+  color: black;
+  display: inline-block;
+  font-size: 25px;
+  text-align: center;
+  width: 100px;
+  height:40px;
+  padding: 5px 5px 5px 5px;
+  text-align: center;
+  border-radius: 10px;
+}
+
+
+#indicator {
+  color: green;
+  font-size: 30px;
+  font-family: helvetica;
 }
