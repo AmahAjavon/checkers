@@ -1,201 +1,146 @@
-'use strict';
+(function(){
+  'use strict';
 
-$(document).ready(init);
+  $(document).ready(init);
 
-// var current = 'ronaldo';
-var $source;
-var $target;
-var arr = [];
-var p1 = 'player1';
-var p2 = 'player2';
-var current;
+  var current = 'ronaldo';
+  var $source;
 
-
-function init(){
-
-  $('#indicator').html('Please press Go to start');
-
-  $('#go').click(function() {
-
-    arr.push(p1, p2);
-    var rand = arr[Math.floor(Math.random() * arr.length)];
-    $('#indicator').html('Ok! ' + rand + ' start with FC Barcelona');
-    var current = rand;
+  function init(){
     initBoard();
-    switchUser();
 
     $('#board').on('click', '.active', select);
     $('#board').on('click', '.empty', move);
-  });
-}
-
-function move(){
-  if(!$source){
-    return;
   }
 
-  var $target = $(this);
-  var isKing = $source.is('.king');
+  function select(){
+    $source = $(this);
+    $('.valid').removeClass('selected');
+    $(this).addClass('selected');
+  }
 
-  var src = {};
-  var tgt = {};
+  function move(){
+    if(!$source){return;}
 
-  src.x = $source.data('x') * 1;
-  src.y = $source.data('y') * 1;
-  tgt.x = $target.data('x') * 1;
-  tgt.y = $target.data('y') * 1;
+    var $target = $(this);
+    var isKing = $source.is('.king');
 
+    var src = {}, tgt = {};
+    src.x = $source.data('x') * 1;
+    src.y = $source.data('y') * 1;
+    tgt.x = $target.data('x') * 1;
+    tgt.y = $target.data('y') * 1;
 
-  var compass = {};
-  compass.north = (current === 'messi') ? -1 : 1;
-  compass.east = (current === 'messi') ? 1 : -1;
-  compass.west = compass.east * -1;
-  compass.south = compass.north * -1;
+    var compass = {};
+    compass.north = current === 'messi' ? -1 : 1;
+    compass.east = current === 'messi' ? 1 : -1;
+    compass.west = compass.east * -1;
+    compass.south = compass.north * -1;
 
-
-  switch(moveType(src, tgt, compass, isKing)){
-    case 'move':
-      console.log('move');
-      movePiece($source, $target);
-      switchUser();
-      break;
-      case 'jump':
-        console.log('jump');
+    switch(moveType(src, tgt, compass, isKing)){
+      case 'move':
         movePiece($source, $target);
-        killPiece(src,tgt,compass,isKing);
-        $source = $target;
-
-        $('td').each(function(e){
-          if ($(this).data('y') === src.y + (compass.north * 2) && ($(this).data('x') === src.x + (compass.east * 2) || $(this).data('x') === src.x + (compass.west * 2))){
-            $target = $(this)[0];
-
-            console.log($target);
-
-            if ($($target).hasClass('empty')){
-
-              var enemy = (current === 'ronaldo') ? 'ronaldo' : 'messi';
-              $('.valid').removeClass('enemy');
-              $('.' + current).addClass('enemy');
-
-              tgt.x = $($target).data('x');
-              tgt.y = $($target).data('y');
-
-              var checkX = ((src.x + tgt.x) / 2);
-              var checkY = ((src.y + tgt.y) / 2);
-              var $middle = $('td[data-x=' + checkX + '][data-y='+ checkY +']');
-              $middle = $middle[0];
-              $middle.addClass('enemy');
-
-              if ($($middle).hasClass('enemy player')){
-                switchUser();
-              }
-
-            }
-          }
-        });
-
         switchUser();
-      }
+        break;
+      case 'jump':
+        movePiece($source, $target);
+        nukePiece(src, tgt);
+        if(availableMove(tgt, compass, isKing)){
+          $source = $target;
+        }else{
+          switchUser();
+        }
     }
+  }
 
-    function killPiece(src,tgt,compass,isKing){
-      console.log('killing');
-      var $middle = inMiddle(src,tgt,compass,isKing);
-      $($middle).removeClass().addClass('valid empty');
+  function availableMove(pos, compass, isKing){
+    var xe = pos.x + (compass.east * 2);
+    var yn = pos.y + (compass.north * 2);
+    var xw = pos.x + (compass.west * 2);
+    var ys = pos.y + (compass.south * 2);
+    var coords = [xe, yn, xw, yn, xw, ys, xe, ys];
+    var loops = isKing ? 4 : 2;
 
-    }
-
-    function movePiece($target,$source){
-      var sourceClasses = $source.attr('class');
-      var targetClasses = $target.attr('class');
-
-      $target.attr('class', sourceClasses);
-      $source.attr('class', targetClasses);
-
-      $target.data('y') === 0 ? $target.addClass('king kingMe') : console.log('get took');
-      $target.data('y') === 7 ? $target.addClass('king kingRo') : console.log('get took');
-
-    }
-
-    function moveType(src, tgt, compass, isKing){
-      if(isMove(src,tgt,compass,isKing)){
-        return 'move';
-      }
-      if (isJump(src,tgt,compass,isKing) && isEnemy(inMiddle(src,tgt,compass,isKing))){
-        return 'jump';
-      }
-    }
-
-    function isMove(src, tgt, compass, isKing){
-      return (src.x + compass.east === tgt.x || src.x + compass.west === tgt.x) && (src.y + compass.north === tgt.y || (isKing && src.y + compass.south === tgt.y));
-    }
-
-    function isJump(src, tgt, compass, isKing){
-
-      var checkEast = compass.east * 2;
-      var checkWest = compass.west * 2;
-      var checkNorth = compass.north * 2;
-      var compassSouth = compass.south * 2;
-
-      return (src.x + checkEast === tgt.x || src.x + checkWest === tgt.x) && (src.y + checkNorth === tgt.y) || (src.y + compassSouth === tgt.y) || (isKing && src.y + compassSouth === tgt.y);
-    }
-
-    function isKing(){
-
-      return $source.hasClass('king');
-
-    }
-
-    function inMiddle(src, tgt, compass, isKing){
-      var checkX = (src.x + tgt.x) / 2;
-      var checkY = (src.y + tgt.y) / 2;
-      var $middle = ($('td[data-x='+checkX+']td[data-y='+checkY+']'));
-      $middle = $middle[0];
-      return $middle;
-    }
-
-    function isEnemy($middle){
-      if ($($middle).hasClass('messi')&&($($source).hasClass('ronaldo')) || ($($middle).hasClass('ronaldo') && $($source).hasClass('messi'))){
+    for(var i = 0; i < loops; i++){
+      var tmp = {};
+      tmp.x = coords[i*2];
+      tmp.y = coords[i*2 + 1];
+      if(isEmpty(tmp) && isEnemy(pos, tmp)){
         return true;
-      } else if ($($middle).hasClass('kingMe')&&($($source).hasClass('kingRo')) || ($($middle).hasClass('kingRo') && $($source).hasClass('kingMe'))){
-        return true;
-      } else if ($($middle).hasClass('messi')&&($($source).hasClass('kingRo')) || ($($middle).hasClass('ronaldo') && $($source).hasClass('kingMe'))){
-        return true;
-      } else if ($($middle).hasClass('kingMe')&&($($source).hasClass('ronaldo')) || ($($middle).hasClass('kingRo') && $($source).hasClass('messi'))){
-        return true;
-      } else {
-        return false;
       }
     }
+  }
 
+  function isEmpty(pos){
+    return $('td[data-x='+pos.x+'][data-y='+pos.y+']').is('.empty');
+  }
 
-    function select(){
-      $source = $(this);
-      $('.valid').removeClass('selected');
-      $source.addClass('selected');
-    }
+  function movePiece($source, $target){
+    var tgt = $target.attr('class');
+    var src = $source.attr('class');
 
-    function initBoard(){
-      // $('#board tr:lt(3) .valid').addClass('ronaldo player');
-      // $('#board tr:gt(4) .valid').addClass('messi player');
-      // $('td.valid:not(.player').addClass('empty');
+    $target.attr('class', src);
+    $source.attr('class', tgt);
 
-      $('tbody tr:lt(3) .valid').addClass('player ronaldo');
-      $('tbody tr:gt(4) .valid').addClass('player messi');
-      $('tbody tr:lt(5):gt(2) .valid').addClass('empty');
-    }
+    if(isCastle($target)){makeKing($target);}
+  }
 
-    function switchUser(){
-      current = (current === 'messi') ? 'ronaldo' : 'messi';
-      $('.valid').removeClass('active selected');
-      $('.' + current).addClass('active');
-    }
+  function isCastle($piece){
+    var castle = current === 'js' ? 0 : 7;
+    return $piece.parent().index() === castle;
+  }
 
-    function winner(){
-      if($('.ronaldo').length === 0){
-        $('#indicator').html('messi Won!');
-      }
-      else if($('.messi').length === 0){
-        $('#indicator').html('ronaldo Won!')
-      }
-    }
+  function makeKing($piece){
+    $piece.removeClass('king').addClass('king');
+  }
+
+  function nukePiece(src, tgt){
+    midpoint(src, tgt).removeClass().addClass('valid empty');
+  }
+
+  function moveType(src, tgt, compass, isKing){
+    if(isMove(src, tgt, compass, isKing)){return 'move';}
+    if(isJump(src, tgt, compass, isKing) && isEnemy(src, tgt)){return 'jump';}
+  }
+
+  function isMove(src, tgt, compass, isKing){
+    return (src.x + compass.east === tgt.x || src.x + compass.west === tgt.x) && (src.y + compass.north === tgt.y || (isKing && (src.y + compass.south === tgt.y)));
+  }
+
+  function isJump(src, tgt, compass, isKing){
+    return (src.x + (compass.east * 2) === tgt.x || src.x + (compass.west * 2) === tgt.x) && (src.y + (compass.north * 2) === tgt.y || (isKing && (src.y + (compass.south * 2) === tgt.y)));
+  }
+
+  function isEnemy(src, tgt){
+    var enemy = current === 'messi' ? '.ronaldo' : '.messi';
+    return midpoint(src, tgt).is(enemy);
+  }
+
+  function midpoint(src, tgt){
+    var x = (src.x + tgt.x) / 2;
+    var y = (src.y + tgt.y) / 2;
+    return $('td[data-x='+x+'][data-y='+y+']');
+  }
+
+  function initBoard(){
+    $('#board tr:lt(3) > .valid').addClass('ronaldo player');
+    $('#board tr:nth-child(4) > .valid, #board tr:nth-child(5) > .valid').addClass('empty');
+    $('#board tr:gt(4) > .valid').addClass('messi player');
+    switchUser();
+  }
+
+  function winner(){
+  if($('.ronaldo').length === 0){
+    $('#indicator').html('messi Won!');
+  }
+  else if($('.messi').length === 0){
+    $('#indicator').html('ronaldo Won!')
+  }
+}
+
+  function switchUser(){
+    current = current === 'messi' ? 'ronaldo' : 'messi';
+    $('.valid').removeClass('active selected');
+    $('.' + current).addClass('active');
+  }
+})();

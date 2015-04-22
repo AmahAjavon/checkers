@@ -4,10 +4,6 @@ h1{
 
 }
 
-.container{
-  text-align: center;
-}
-
 table{
   border: 3px solid #cccccc;
   width: 600px;
@@ -19,33 +15,17 @@ td{
   border: 1px solid #ffffff;
 }
 
+.container{
+  text-align: center;
+}
+
 .valid{
   background-color: #cccccc;
   background-size: cover;
 }
 
-.messi{
-  background-image: url('/assets/messi.png');
-}
-
-.ronaldo{
-  background-image: url('/assets/ronaldo.png');
-}
-
-.kingMe{
-  background-image: url('/assets/kingMe.png');
-}
-
-.kingRo{
-  background-image: url('/assets/kingRo.png');
-}
-
 .active{
-  background-color: #222222;
-}
-
-.king{
-  border: 2px solid green;
+  background-color: #222222 !important;
 }
 
 .selected{
@@ -61,6 +41,22 @@ td{
   -ms-animation-iteration-count: 3;
 
 }
+.messi{
+  background-image: url('/assets/messi.png');
+}
+
+.ronaldo{
+  background-image: url('/assets/ronaldo.png');
+}
+
+.messi.king{
+  background-image: url('/assets/kingMe.png');
+}
+
+.ronaldo.king{
+  background-image: url('/assets/kingRo.png');
+}
+
 
 @-webkit-keyframes flash {
     0% { background-color:none;}

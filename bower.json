@@ -1,13 +1,13 @@
 {
-  "name": "front-end-prototype",
+  "name": "checkers",
   "version": "0.0.1",
-  "homepage": "https://github.com/chyld/front-end-prototype",
+  "homepage": "https://github.com/amahajavon/checkers",
   "authors": [
-    "Chyld Medford <chyld.medford@gmail.com>"
+    "Amah Ajavon <greatmindsent@gmail.com>"
   ],
   "license": "BSD",
   "dependencies": {
-    "lodash": "~3.6.0",
+    "lodash": "~3.7.0",
     "font-awesome": "~4.3.0",
     "jquery": "~2.1.3"
   }
